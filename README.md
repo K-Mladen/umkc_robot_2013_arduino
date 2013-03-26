@@ -1,4 +1,10 @@
 umkc_robot_2013_arduino
 =======================
 
-Arduino code for the UMKC IEEE Robotics Team 2013 IEEE R5 Competition.
+This is the Arduino code for the UMKC Robotics Team for the 2013 IEEE R5 
+competition.
+
+Flash this using Arduino 0022 via the capstone motherboard.
+
+Wiring diagram included in PDF and FZZ (Fritzing) format. Frizing is available
+by going to www.fritzing.org.
