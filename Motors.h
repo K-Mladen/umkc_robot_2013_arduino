@@ -2,23 +2,41 @@
  * Arduino motor controller code
  * UMKC Robot Team 2013
  * Sarah Withee
+ * Started: February 16, 2013
+ * Updated: March 27, 2013
  ***************************************/
 
 // Arduino stuff
 #ifndef Motors_h
 #define Motors_h
 // include types & constants of Wiring core API
-#include "WProgram.h"
+// WProgram.h for Arduino < 1.0, Arduino.h for Arduino >= 1.0
+//#include "WProgram.h"
+
+boolean dir;
 
 class Motors { 
 private:
-	// Keep some vars to help keep track of some stuff
-	boolean dir;   // default forward;
+	byte motor1Dir;
+	byte motor2Dir;
+	byte motor1PWM;
+	byte motor2PWM;
+	byte motor1Cur;
+	byte motor2Cur;
+// Keep some vars to help keep track of some stuff
+	// Now a part of 
+	//boolean dir;   // default forward;
 
 public:
 	// Setup pin outs and stuff
 	Motors() {
 		dir = true;
+		motor1Dir = 23;
+		motor2Dir = 24;
+		motor1PWM = 4;
+		motor2PWM = 5;
+		motor1Cur = 0;
+		motor2Cur = 1;
 
 		// Speed controls
 		pinMode(motor1PWM, OUTPUT);

@@ -2,8 +2,15 @@
  * Arduino Sharp IR sensor code
  * UMKC Robot Team 2013
  * Sarah Withee
- * February 16, 2013
+ * Started: February 16, 2013
+ * Updated: March 27, 2013
  ***************************************/
+// Arduino stuff
+#ifndef IRSensors_h
+#define IRSensors_h
+// include types & constants of Wiring core API
+// WProgram.h for Arduino < 1.0, Arduino.h for Arduino >= 1.0
+#include "WProgram.h"
 
 
 class IRSensor {
@@ -29,3 +36,4 @@ public:
     return 2076/(val-11)/2.54;
   }  
 };
+#endif

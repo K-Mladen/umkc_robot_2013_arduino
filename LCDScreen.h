@@ -2,13 +2,15 @@
  * Arduino LCD screen functions
  * UMKC Robot Team 2013
  * Sarah Withee
- * February 16, 2013
+ * Started: February 16, 2013
+ * Updated: March 27, 2013
  ***************************************/
 
 // Arduino stuff
 #ifndef LCDScreen_h
 #define LCDScreen_h
 // include types & constants of Wiring core API
+// WProgram.h for Arduino < 1.0, Arduino.h for Arduino >= 1.0
 #include "WProgram.h"
 
 class LCDScreen{
