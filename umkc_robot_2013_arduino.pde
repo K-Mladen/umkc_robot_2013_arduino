@@ -33,6 +33,7 @@ const byte motor2PWM = 	5;
 //#include "LCDScreen.h"
 #include "Motors.h"
 //#include "IRSensors.h"
+// Do NOT include Encoders.h anymore
 //#include "Encoders.h"
 
 
@@ -66,7 +67,8 @@ int encoder1;
 int encoder2;
 int encoder3;
 int encoder4;
-
+int currentTime;
+int oldTime;
 
 
 /***************************************
@@ -87,6 +89,10 @@ void rmotor_catch(const std_msgs::Int16& message) {
  * Arduino set
  ***************************************/
 void setup() {
+        encoder1 = 0;
+        encoder2 = 0;
+        encoder3 = 0;
+        encoder4 = 0;
 
         attachInterrupt(0, enc1Interrupt, RISING);
         attachInterrupt(1, enc2Interrupt, RISING);
@@ -96,8 +102,10 @@ void setup() {
 	nh.initNode();
 	nh.subscribe(listenLMotor);
 	nh.subscribe(listenRMotor);
-	nh.advertise(pubLWheel);
         nh.advertise(pubRWheel);
+	nh.advertise(pubLWheel);
+
+        oldTime = millis();
 }
 
 /***************************************
@@ -113,35 +121,39 @@ void loop() {
           updatedSpeed = false;
         }
         
-        if(updatedEncoder) {
-          lEnc.data = encoder1;
+        currentTime = millis();
+        if(currentTime - oldTime > 20) {
+        //if(updatedEncoder) {
+          lEnc.data = encoder2;
           rEnc.data = encoder3;
           pubLWheel.publish( &lEnc );
           pubRWheel.publish( &rEnc );
           updatedEncoder = false;
-        }
+          oldTime = millis();
+       }
+       
 }
 
 void enc1Interrupt() {
-  if(direction)
+  if(motors.getLMotorDir())
     encoder1++;
   else
     encoder1--;
 }
 void enc2Interrupt() {
-  if(direction)
+  if(motors.getLMotorDir())
     encoder2++;
   else
     encoder2--;
 }
 void enc3Interrupt() {
-  if(direction)
+  if(motors.getRMotorDir())
     encoder3++;
   else
     encoder3--;
 }
 void enc4Interrupt() {
-  if(direction)
+  if(motors.getLMotorDir())
     encoder4++;
   else
     encoder4--;

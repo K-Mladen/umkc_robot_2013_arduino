@@ -74,10 +74,9 @@ public:
           return rDir;
         }
 
-/*
+/*************************************
         Old functions:
         They work, but no longer used
-*********        
         
 	void forward(int spd = 255) {
 		dir = true;
