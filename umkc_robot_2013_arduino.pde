@@ -2,8 +2,8 @@
  * Main Arduino robot functions
  * UMKC Robot Team 2013
  * Sarah Withee, Eric Gonzalez
- * Started: February 16, 2013
- * Updated: March 27, 2013
+ * Created: February 16, 2013
+ * Modified: April 5, 2013
  ***************************************/
 
 /***************************************
@@ -23,134 +23,127 @@ const byte motor2PWM = 	5;
 //const byte motor2Cur = 	1;	// A1
 //const byte pinIR1 = 	2;		// A2
 
-
 /***************************************
  * includes
  ***************************************/
+#include <ros.h>
+//#include <Wall.h>
+//#include <std_msgs/String.h>
+#include <std_msgs/Int16.h>
 //#include "LCDScreen.h"
 #include "Motors.h"
 //#include "IRSensors.h"
-#include "Encoders.h"
-
-#include <ros.h>
-#include <Wall.h>
-#include <std_msgs/String.h>
-
+//#include "Encoders.h"
 
 
 /***************************************
  * ROS variables
  ***************************************/
 ros::NodeHandle nh;
-void message_catch(const capstone::Wall& message);
-char* inMsg;
-enum fields { direction, angle, speed };
 
 // Listen to motherboard
-ros::Subscriber<capstone::Wall> listen("arduino_motors_write", &message_catch);
-std_msgs::String outMsg;
+void lmotor_catch(const std_msgs::Int16& message);    
+void rmotor_catch(const std_msgs::Int16& message);    
+ros::Subscriber<std_msgs::Int16> listenLMotor("lmotor_cmd", &lmotor_catch);
+ros::Subscriber<std_msgs::Int16> listenRMotor("rmotor_cmd", &rmotor_catch);
+
 // Talk to motherboard
-ros::Publisher talker("arduino_motors_read", &outMsg);
+std_msgs::Int16 lEnc;
+std_msgs::Int16 rEnc;
+ros::Publisher pubLWheel("lwheel", &lEnc);
+ros::Publisher pubRWheel("rwheel", &rEnc);
 
 /***************************************
  * Other variables
  ***************************************/
-Motors motors;
-//boolean dir;         // true if forward
-//int spd;
+static Motors motors;
+int lmotor_speed = 0;
+int rmotor_speed = 0;
+boolean updatedSpeed = false;
+boolean updatedEncoder = false;
+boolean direction = true;
+int encoder1;
+int encoder2;
+int encoder3;
+int encoder4;
 
 
-void message_catch(const capstone::Wall& message) {    
-	//caught a message. save it some where and then pass it back.
-	inMsg = message.data;
-	// this isn't right. might need to use strings
-	//  if ((sizeof(passoff) / sizeof(char)) != message.size) {
-	//    strcpy(passoff, "CAP --> Error in message :: message not expected size.\n");
-	//  }
+
+/***************************************
+ * ROS Motor message catching
+ ***************************************/
+void lmotor_catch(const std_msgs::Int16& message) {    
+    // Caught motor speed message, save and set to future update
+    lmotor_speed = message.data;
+    updatedSpeed = true;
 }  
-
+void rmotor_catch(const std_msgs::Int16& message) {    
+    // Caught motor speed message, save and set to future update
+    rmotor_speed = message.data;
+    updatedSpeed = true;
+}
 
 /***************************************
  * Arduino set
  ***************************************/
 void setup() {
 
-	// Keep some vars to help keep track of some stuff
-
-	dir = true;
-
-	// Speed controls
-	pinMode(motor1PWM, OUTPUT);
-	pinMode(motor2PWM, OUTPUT);
-	// Direction controls
-	pinMode(motor1Dir, OUTPUT);
-	pinMode(motor2Dir, OUTPUT);
-	// Current goes up/down (?) if resistance to motor goes up
-	//pinMode(motor1Cur, INPUT);
-	//pinMode(motor2Cur, INPUT);
-
-	nh.initNode();
-	nh.subscribe(listen);
-	nh.advertise(talker);
-
         attachInterrupt(0, enc1Interrupt, RISING);
         attachInterrupt(1, enc2Interrupt, RISING);
         attachInterrupt(2, enc3Interrupt, RISING);
         attachInterrupt(3, enc4Interrupt, RISING);
 
+	nh.initNode();
+	nh.subscribe(listenLMotor);
+	nh.subscribe(listenRMotor);
+	nh.advertise(pubLWheel);
+        nh.advertise(pubRWheel);
 }
 
 /***************************************
  * Arduino loop
  ***************************************/
 void loop() {
+	// Check with ROS to find any new messages
 	nh.spinOnce();
-	// after spinOnce, the message has been received and copied.
-	//   can now parse and create a string message to print.
 
-	char build_msg[256];
-	strcpy(build_msg, "CAP --> UI :: ");  
-	switch (inMsg[direction]) {
-		case 'f': {
-			//strcat(build_msg, "forward, ");
-			motors.forward();
-			break;
-		}
-		case 'l': {
-			//strcat(build_msg, "pivot left, ");
-			// insert left funciton here
-			break;
-		}  
-		case 'b': {
-			//strcat(build_msg, "backward, ");
-			motors.backward();
-			break;
-		}
-		case 'r': {
-			//strcat(build_msg, "pivot right, ");
-			// insert right funciton ehre
-			break;
-		}  
-		case 'q': {
-			//strcat(build_msg, "guide left, ");
-			break;
-		}
-		case 'e': {
-			//strcat(build_msg, "guide right, ");
-			break;
-		}
-		case 'x': {
-			//strcat(build_msg, "all stop");
-			motors.stop();
-			break;
-		}
-		default: {
-			//strcat(build_msg, "no input");
-			break;
-		}
-	}
-	//outMsg.data = build_msg;
-	//talker.publish( &outMsg );
-	inMsg = NULL;
-	delay(100);
+        if(updatedSpeed) {
+          motors.setLMotorSpeed(lmotor_speed);
+          motors.setRMotorSpeed(rmotor_speed);
+          updatedSpeed = false;
+        }
+        
+        if(updatedEncoder) {
+          lEnc.data = encoder1;
+          rEnc.data = encoder3;
+          pubLWheel.publish( &lEnc );
+          pubRWheel.publish( &rEnc );
+          updatedEncoder = false;
+        }
 }
+
+void enc1Interrupt() {
+  if(direction)
+    encoder1++;
+  else
+    encoder1--;
+}
+void enc2Interrupt() {
+  if(direction)
+    encoder2++;
+  else
+    encoder2--;
+}
+void enc3Interrupt() {
+  if(direction)
+    encoder3++;
+  else
+    encoder3--;
+}
+void enc4Interrupt() {
+  if(direction)
+    encoder4++;
+  else
+    encoder4--;
+}
+
