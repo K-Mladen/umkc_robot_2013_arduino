@@ -43,6 +43,8 @@ public:
 
         void setLMotorSpeed(int speed) {
 		// Left motor is connected to controller motor 2
+		if(speed > 255) speed = 255;
+		if(speed < -255) speed = -255;
 		if(speed >= 0) {
 			digitalWrite(motor2Dir, HIGH);
 			//direction = true;
@@ -59,47 +61,48 @@ public:
         
         void setRMotorSpeed(int speed) {
 		// Right motor is connected to controller motor 1
-		if(speed >= 0) {
-			digitalWrite(motor1Dir, HIGH);
-			//direction = true;
-			rDir = true;
-		}
-		else {
-			digitalWrite(motor1Dir, LOW);
-			//direction = false;
-			rDir = false;
-		}
-		rSpeed = abs(speed);
-		analogWrite(motor1PWM, rSpeed);
+			if(speed >= 0) {
+				digitalWrite(motor1Dir, HIGH);
+				//direction = true;
+				rDir = true;
+			}
+			else {
+				digitalWrite(motor1Dir, LOW);
+				//direction = false;
+				rDir = false;
+			}
+			rSpeed = abs(speed);
+			analogWrite(motor1PWM, rSpeed);
         }
 
         void armStartDown(int speed = 255) {
-		// Set to motor 3
+			// Set to motor 3
 			digitalWrite(motor3Dir, LOW);
 			analogWrite(motor3PWM, speed);
         }
         void armStartUp(int speed = 255) {
-		// Set to motor 3
+			// Set to motor 3
 			digitalWrite(motor3Dir, HIGH);
 			analogWrite(motor3PWM, speed);
         }
         void armStop() {
+			digitalWrite(motor3Dir, HIGH);
 			analogWrite(motor3PWM, 0);
         }
         void magnet(boolean setOn) {
 		// Set to motor 4
-			digitalWrite(motor4Dir, HIGH);
-			if(setOn)
-				analogWrite(motor4PWM, 255);
-			else
-				analogWrite(motor4PWM, 0);
+		digitalWrite(motor4Dir, HIGH);
+		if(setOn)
+			analogWrite(motor4PWM, 255);
+		else
+			analogWrite(motor4PWM, 0);
         }
 
         boolean getLMotorDir() {
-			return lDir;
+          return lDir;
         }
         boolean getRMotorDir() {
-			return rDir;
+          return rDir;
         }
 };
 
