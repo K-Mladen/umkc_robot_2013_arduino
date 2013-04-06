@@ -37,18 +37,21 @@ public:
               Serial1.write(18);
 	}
 
-        void on(boolean val) {
-            if(val)
-          //    Serial1.write(22);   // Cursor off, blink off
-          //    Serial1.write(23);   // Cursor off, blink on
-          //    Serial1.write(24);   // Cursor on, blink off
-              Serial1.write(25);   // Cursor on, blink on
-            else
-              Serial1.write(21);
-      }
+	void on(boolean val) {
+		if(val)
+		//	Serial1.write(22);   // Cursor off, blink off
+		//	Serial1.write(23);   // Cursor off, blink on
+		//	Serial1.write(24);   // Cursor on, blink off
+			Serial1.write(25);   // Cursor on, blink on
+		else
+			Serial1.write(21);
+	}
 
+	void print(String msg) {
+		Serial1.print(msg);
+	)
 
-	void print(String msg, int line=0) {
+	void print(String msg, int line) {
             switch(line) {
               case 0:
               case 1: Serial1.write(128); break;

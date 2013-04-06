@@ -47,8 +47,8 @@ class ArduinoHardware {
     ArduinoHardware()
     {
       iostream = &Serial;
-      //baud_ = 57600;
-      baud_ = 10000;
+      baud_ = 57600;
+      //baud_ = 10000;
     }
     ArduinoHardware(ArduinoHardware& h){
       this->iostream = iostream;
