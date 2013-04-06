@@ -30,7 +30,7 @@ const byte motor2PWM = 	5;
 //#include <Wall.h>
 //#include <std_msgs/String.h>
 #include <std_msgs/Int16.h>
-//#include "LCDScreen.h"
+#include "LCDScreen.h"
 #include "Motors.h"
 //#include "IRSensors.h"
 // Do NOT include Encoders.h anymore
@@ -58,6 +58,7 @@ ros::Publisher pubRWheel("rwheel", &rEnc);
  * Other variables
  ***************************************/
 static Motors motors;
+LCDScreen lcd;
 int lmotor_speed = 0;
 int rmotor_speed = 0;
 boolean updatedSpeed = false;
@@ -106,6 +107,11 @@ void setup() {
 	nh.advertise(pubLWheel);
 
         oldTime = millis();
+        //Serial1.begin(19200);   // LCD
+        Serial1.begin(115200);   // LCD
+        lcd.init();
+        lcd.clear();
+        lcd.on(true);
 }
 
 /***************************************
@@ -115,6 +121,8 @@ void loop() {
 	// Check with ROS to find any new messages
 	nh.spinOnce();
 
+        lcd.print("Testing!");
+        
         if(updatedSpeed) {
           motors.setLMotorSpeed(lmotor_speed);
           motors.setRMotorSpeed(rmotor_speed);
@@ -122,7 +130,7 @@ void loop() {
         }
         
         currentTime = millis();
-        if(currentTime - oldTime > 20) {
+        if(currentTime - oldTime > 10) {
         //if(updatedEncoder) {
           lEnc.data = encoder2;
           rEnc.data = encoder3;
